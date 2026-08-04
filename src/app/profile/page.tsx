@@ -2,9 +2,20 @@
 
 import React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { useCartStore } from "@/store/useCartStore";
 
 export default function ProfilePage() {
+  const router = useRouter();
+  const { clearCart } = useCartStore();
+
+  const handleLogout = (e: React.MouseEvent) => {
+    e.preventDefault();
+    clearCart();
+    router.push("/login");
+  };
+
   return (
     <div className="min-h-screen bg-[#050505] text-white pt-24 pb-16">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
@@ -35,8 +46,12 @@ export default function ProfilePage() {
               </nav>
 
               <div className="mt-8 pt-6 border-t border-zinc-800">
-                <Button variant="ghost" className="w-full text-red-500 hover:text-red-400 hover:bg-red-500/10 justify-start" asChild>
-                  <Link href="/login">Log Out</Link>
+                <Button 
+                  variant="ghost" 
+                  className="w-full text-red-500 hover:text-red-400 hover:bg-red-500/10 justify-start" 
+                  onClick={handleLogout}
+                >
+                  Log Out
                 </Button>
               </div>
             </div>

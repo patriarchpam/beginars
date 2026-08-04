@@ -7,6 +7,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/lib/supabase";
+import { useRouter } from "next/navigation";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -16,6 +18,10 @@ const loginSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
+
   const {
     register,
     handleSubmit,
@@ -24,9 +30,26 @@ export default function LoginPage() {
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = (data: LoginFormValues) => {
-    console.log("Login data:", data);
-    alert("Login successful!");
+  const onSubmit = async (data: LoginFormValues) => {
+    setIsLoading(true);
+    setErrorMsg(null);
+    try {
+      const { data: authData, error } = await supabase.auth.signInWithPassword({
+        email: data.email,
+        password: data.password,
+      });
+
+      if (error) {
+        setErrorMsg(error.message);
+        return;
+      }
+
+      router.push("/profile");
+    } catch (err: any) {
+      setErrorMsg(err.message || "An error occurred");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -58,6 +81,12 @@ export default function LoginPage() {
             <h1 className="text-3xl font-black tracking-tighter uppercase mb-2">Welcome Back</h1>
             <p className="text-zinc-500 text-sm">Enter your details to access your account.</p>
           </div>
+
+          {errorMsg && (
+            <div className="bg-red-50 text-red-500 p-3 rounded-md text-sm">
+              {errorMsg}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div>
@@ -97,8 +126,8 @@ export default function LoginPage() {
               </Link>
             </div>
 
-            <Button type="submit" className="w-full bg-black text-white hover:bg-zinc-800 h-12 font-bold uppercase tracking-widest text-xs">
-              Log In
+            <Button disabled={isLoading} type="submit" className="w-full bg-black text-white hover:bg-zinc-800 h-12 font-bold uppercase tracking-widest text-xs">
+              {isLoading ? "Loading..." : "Log In"}
             </Button>
           </form>
         </div>

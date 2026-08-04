@@ -7,6 +7,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/lib/supabase";
+import { useRouter } from "next/navigation";
 
 const signupSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -20,6 +22,10 @@ const signupSchema = z.object({
 type SignupFormValues = z.infer<typeof signupSchema>;
 
 export default function SignupPage() {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
+
   const {
     register,
     handleSubmit,
@@ -28,9 +34,27 @@ export default function SignupPage() {
     resolver: zodResolver(signupSchema),
   });
 
-  const onSubmit = (data: SignupFormValues) => {
-    console.log("Signup data:", data);
-    alert("Signup successful!");
+  const onSubmit = async (data: SignupFormValues) => {
+    setIsLoading(true);
+    setErrorMsg(null);
+    try {
+      const { data: authData, error } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+      });
+
+      if (error) {
+        setErrorMsg(error.message);
+        return;
+      }
+
+      alert("Signup successful! Please check your email to verify your account.");
+      router.push("/login");
+    } catch (err: any) {
+      setErrorMsg(err.message || "An error occurred");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -63,6 +87,12 @@ export default function SignupPage() {
             <h1 className="text-3xl font-black tracking-tighter uppercase mb-2">Sign Up as a BEGINAR</h1>
             <p className="text-zinc-500 text-sm">Create your account to start ordering your favorites.</p>
           </div>
+
+          {errorMsg && (
+            <div className="bg-red-50 text-red-500 p-3 rounded-md text-sm">
+              {errorMsg}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div>
@@ -113,8 +143,8 @@ export default function SignupPage() {
               </Link>
             </div>
 
-            <Button type="submit" className="w-full bg-black text-white hover:bg-zinc-800 h-12 font-bold uppercase tracking-widest text-xs">
-              Sign Up
+            <Button disabled={isLoading} type="submit" className="w-full bg-black text-white hover:bg-zinc-800 h-12 font-bold uppercase tracking-widest text-xs">
+              {isLoading ? "Loading..." : "Sign Up"}
             </Button>
           </form>
         </div>
