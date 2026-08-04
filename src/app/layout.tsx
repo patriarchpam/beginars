@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Inter, Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
+import { AuthProvider } from "@/lib/auth-context";
+import { AuthGate } from "@/components/layout/AuthGate";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import "./globals.css";
@@ -43,11 +45,15 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Navbar />
-          <main className="flex-1 mt-16 sm:mt-20">
-            {children}
-          </main>
-          <Footer />
+          <AuthProvider>
+            <AuthGate>
+              <Navbar />
+              <main className="flex-1 mt-16 sm:mt-20">
+                {children}
+              </main>
+              <Footer />
+            </AuthGate>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

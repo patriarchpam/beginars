@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { SearchModal } from "@/components/layout/SearchModal";
 import { useCartStore } from "@/store/useCartStore";
+import { useAuth } from "@/lib/auth-context";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -21,6 +22,7 @@ import {
 const navLinks = [
   { name: "Home", href: "/" },
   { name: "Collections", href: "/collections" },
+  { name: "Lookbook", href: "/lookbook" },
   { name: "About", href: "/about" },
 ];
 
@@ -29,6 +31,7 @@ export function Navbar() {
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
   const cartItemCount = useCartStore((state) => state.getItemCount());
+  const { user } = useAuth();
 
   useEffect(() => {
     setMounted(true);
@@ -173,9 +176,12 @@ export function Navbar() {
                 <Search className="h-5 w-5" />
               </Button>
             } />
-            <Button variant="ghost" size="icon" aria-label="Account" asChild>
-              <Link href="/profile">
+            <Button variant="ghost" size="icon" aria-label="Account" className="relative" asChild>
+              <Link href={user ? "/profile" : "/login"}>
                 <User className="h-5 w-5" />
+                {mounted && user && (
+                  <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-emerald-500" />
+                )}
               </Link>
             </Button>
             <Button variant="ghost" size="icon" aria-label="Cart" className="relative" asChild>

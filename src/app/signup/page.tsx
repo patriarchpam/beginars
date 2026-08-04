@@ -25,6 +25,7 @@ export default function SignupPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = React.useState(false);
   const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = React.useState<string | null>(null);
 
   const {
     register,
@@ -37,21 +38,44 @@ export default function SignupPage() {
   const onSubmit = async (data: SignupFormValues) => {
     setIsLoading(true);
     setErrorMsg(null);
+    setSuccessMsg(null);
     try {
+      console.log("Attempting Supabase signup for:", data.email);
       const { data: authData, error } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
       });
 
+      console.log("Supabase signup result:", { authData, error });
+
       if (error) {
-        setErrorMsg(error.message);
+        if (error.message.toLowerCase().includes("rate limit exceeded")) {
+          setErrorMsg(
+            "Supabase email rate limit reached (too many confirmation emails sent). Please wait a few minutes, OR turn off 'Confirm Email' in your Supabase Dashboard under Authentication → Providers → Email to sign up instantly without rate limits."
+          );
+        } else {
+          setErrorMsg(error.message);
+        }
         return;
       }
 
-      alert("Signup successful! Please check your email to verify your account.");
-      router.push("/login");
+      // Supabase returns empty identities array if user with this email already exists
+      if (authData.user && authData.user.identities && authData.user.identities.length === 0) {
+        setErrorMsg("An account with this email already exists. Please try logging in instead.");
+        return;
+      }
+
+      if (authData.user) {
+        setSuccessMsg("Account created! Redirecting you to login...");
+        setTimeout(() => {
+          router.push("/login");
+        }, 1500);
+      } else {
+        setErrorMsg("Unable to complete signup. Please verify your Supabase project credentials.");
+      }
     } catch (err: any) {
-      setErrorMsg(err.message || "An error occurred");
+      console.error("Signup exception:", err);
+      setErrorMsg(err.message || "An error occurred during signup");
     } finally {
       setIsLoading(false);
     }
@@ -87,6 +111,12 @@ export default function SignupPage() {
             <h1 className="text-3xl font-black tracking-tighter uppercase mb-2">Sign Up as a BEGINAR</h1>
             <p className="text-zinc-500 text-sm">Create your account to start ordering your favorites.</p>
           </div>
+
+          {successMsg && (
+            <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 p-4 rounded-md text-sm font-medium">
+              {successMsg}
+            </div>
+          )}
 
           {errorMsg && (
             <div className="bg-red-50 text-red-500 p-3 rounded-md text-sm">
