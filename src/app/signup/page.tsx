@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 
 const signupSchema = z.object({
@@ -41,6 +41,7 @@ export default function SignupPage() {
     setSuccessMsg(null);
     try {
       console.log("Attempting Supabase signup for:", data.email);
+      const supabase = createClient();
       const { data: authData, error } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
@@ -66,10 +67,19 @@ export default function SignupPage() {
       }
 
       if (authData.user) {
-        setSuccessMsg("Account created! Redirecting you to login...");
-        setTimeout(() => {
-          router.push("/login");
-        }, 1500);
+        if (authData.session) {
+          // Auto-login (Confirm Email is OFF in Supabase)
+          setSuccessMsg("Account created successfully! Redirecting...");
+          setTimeout(() => {
+            router.push("/profile");
+          }, 1500);
+        } else {
+          // Email confirmation required (Confirm Email is ON in Supabase)
+          setSuccessMsg("Account created! Please check your email to verify your account.");
+          setTimeout(() => {
+            router.push("/login");
+          }, 3000);
+        }
       } else {
         setErrorMsg("Unable to complete signup. Please verify your Supabase project credentials.");
       }

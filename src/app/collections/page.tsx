@@ -12,7 +12,7 @@ const collections = [
     id: "summer-edit",
     title: "The Summer Edit",
     description: "Lightweight fabrics and breezy silhouettes designed for the warmer months.",
-    image: "https://images.unsplash.com/photo-1523381294911-8d3cead13475?q=80&w=1200&auto=format&fit=crop",
+    image: "/images/collections/summer.png",
     href: "/shop?collection=summer",
     align: "left"
   },
@@ -20,7 +20,7 @@ const collections = [
     id: "essentials",
     title: "Core Essentials",
     description: "The foundation of a modern wardrobe. Timeless pieces you'll wear year-round.",
-    image: "https://images.unsplash.com/photo-1489987707023-afc7e8798e01?q=80&w=1200&auto=format&fit=crop",
+    image: "/images/collections/essentials.png",
     href: "/shop?collection=essentials",
     align: "right"
   },
@@ -28,7 +28,7 @@ const collections = [
     id: "evening",
     title: "Evening Wear",
     description: "Elevated looks for your most important events. Elegant, refined, unforgettable.",
-    image: "https://images.unsplash.com/photo-1566206091558-f622e6900fdf?q=80&w=1200&auto=format&fit=crop",
+    image: "/images/collections/evening.png",
     href: "/shop?collection=evening",
     align: "left"
   }

@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 
 const loginSchema = z.object({
@@ -41,6 +41,7 @@ export default function LoginPage() {
     setResendSuccess(false);
 
     try {
+      const supabase = createClient();
       const { data: authData, error } = await supabase.auth.signInWithPassword({
         email: data.email,
         password: data.password,
@@ -72,6 +73,7 @@ export default function LoginPage() {
     }
     setResendLoading(true);
     try {
+      const supabase = createClient();
       const { error } = await supabase.auth.resend({
         type: "signup",
         email: email,

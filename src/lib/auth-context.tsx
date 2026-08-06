@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { User, Session } from "@supabase/supabase-js";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/client";
 
 interface AuthContextType {
   user: User | null;
@@ -24,6 +24,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const supabase = createClient();
+
     // Fetch current session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
@@ -46,6 +48,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signOut = async () => {
+    const supabase = createClient();
     await supabase.auth.signOut();
   };
 
