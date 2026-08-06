@@ -1,10 +1,12 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
 import { ProductCard, type Product } from "@/components/product/ProductCard";
 import { FilterSidebar } from "@/components/product/FilterSidebar";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/client";
+import { useAuth } from "@/lib/auth-context";
 import {
   Select,
   SelectContent,
@@ -14,12 +16,14 @@ import {
 } from "@/components/ui/select";
 
 export default function ShopPage() {
+  const { user } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
+      const supabase = createClient();
       const { data, error } = await supabase
         .from("products")
         .select("*")
@@ -38,6 +42,22 @@ export default function ShopPage() {
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+      {/* Guest Banner */}
+      {!user && (
+        <div className="mb-6 flex items-center justify-between bg-zinc-900 border border-zinc-700 rounded-xl px-5 py-4">
+          <p className="text-sm text-zinc-300">
+            <span className="font-semibold text-white">Browsing as guest.</span> Sign in to add items to your cart and checkout.
+          </p>
+          <div className="flex gap-3 ml-4 shrink-0">
+            <Button asChild size="sm" variant="outline" className="border-zinc-600 text-xs">
+              <Link href="/login">Log In</Link>
+            </Button>
+            <Button asChild size="sm" className="bg-white text-black hover:bg-zinc-200 text-xs">
+              <Link href="/signup">Sign Up</Link>
+            </Button>
+          </div>
+        </div>
+      )}
       {/* Page Header */}
       <div className="mb-8 md:mb-12">
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-4">All Products</h1>

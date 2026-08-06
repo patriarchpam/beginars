@@ -50,6 +50,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     const supabase = createClient();
     await supabase.auth.signOut();
+    // Wipe all per-user local storage so the next user starts fresh
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('beginars-cart-storage');
+      localStorage.removeItem('beginars-order-history-storage');
+    }
   };
 
   return (
