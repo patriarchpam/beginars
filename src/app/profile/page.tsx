@@ -26,6 +26,7 @@ export default function ProfilePage() {
   const { user, loading, signOut } = useAuth();
   const { clearCart } = useCartStore();
   const localOrders = useOrderStore((state) => state.orders);
+  const clearOrders = useOrderStore((state) => state.clearOrders);
   const [orders, setOrders] = useState<Order[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(true);
 
@@ -97,6 +98,7 @@ export default function ProfilePage() {
     e.preventDefault();
     await signOut();
     clearCart();
+    clearOrders();
     router.push("/login");
   };
 
