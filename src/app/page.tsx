@@ -1,54 +1,38 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProductCard, type Product } from "@/components/product/ProductCard";
-
-// Using placeholder images for the t-shirts that loosely match the "ALTER EGO" vibe
-const latestDrops: Product[] = [
-  {
-    id: "1",
-    name: "BEGINARS - ALTER EGO",
-    price: 18000,
-    rating: 5.0,
-    reviews: 24,
-    image: "/images/brown_alter_ego_tee.png", 
-    category: "Tees"
-  },
-  {
-    id: "2",
-    name: "BEGINARS - ALTER EGO",
-    price: 18000,
-    rating: 4.8,
-    reviews: 12,
-    image: "/images/white_alter_ego_tee.png", 
-    category: "Tees"
-  },
-  {
-    id: "3",
-    name: "BEGINARS - ALTER EGO",
-    price: 22000,
-    rating: 4.9,
-    reviews: 56,
-    image: "/images/brown_alter_ego_tee.png", 
-    category: "Tees"
-  },
-  {
-    id: "4",
-    name: "BEGINARS - ALTER EGO",
-    price: 22000,
-    rating: 4.7,
-    reviews: 18,
-    image: "/images/white_alter_ego_tee.png", 
-    category: "Tees"
-  }
-];
+import { supabase } from "@/lib/supabase";
 
 export default function Home() {
+  const [latestDrops, setLatestDrops] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchLatestProducts = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from("products")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(4);
+
+      if (error) {
+        console.error("Error fetching latest products:", error);
+      } else if (data) {
+        setLatestDrops(data);
+      }
+      setLoading(false);
+    };
+
+    fetchLatestProducts();
+  }, []);
+
   return (
     <div className="flex flex-col min-h-screen bg-[#050505] text-white">
       {/* Hero Section */}
@@ -73,17 +57,19 @@ export default function Home() {
               <Button 
                 size="lg" 
                 className="w-full sm:w-auto h-12 sm:h-14 px-8 bg-white text-black hover:bg-zinc-200 font-bold uppercase tracking-wider text-xs sm:text-sm rounded-sm"
-                render={<Link href="/shop" />}
+                asChild
               >
-                SHOP COLLECTION
+                <Link href="/shop">SHOP COLLECTION</Link>
               </Button>
               <Button 
                 size="lg" 
                 variant="ghost" 
                 className="w-full sm:w-auto h-12 sm:h-14 px-8 text-white hover:bg-zinc-800 font-bold uppercase tracking-wider text-xs sm:text-sm rounded-sm"
-                render={<Link href="/lookbook" />}
+                asChild
               >
-                VIEW LOOKBOOK <Plus className="ml-2 h-4 w-4" />
+                <Link href="/lookbook">
+                  VIEW LOOKBOOK <Plus className="ml-2 h-4 w-4" />
+                </Link>
               </Button>
             </div>
           </motion.div>
@@ -118,15 +104,24 @@ export default function Home() {
               href="/shop" 
               className="text-xs md:text-sm font-bold tracking-widest uppercase text-zinc-400 hover:text-white transition-colors"
             >
-              VIEW ALL 133
+              VIEW ALL IN SHOP
             </Link>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 gap-y-12">
-            {latestDrops.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
+          {loading ? (
+            <div className="flex justify-center items-center h-48">
+              <p className="font-bold uppercase tracking-widest text-zinc-500 animate-pulse">Loading Drops...</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 gap-y-12">
+              {latestDrops.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+              {latestDrops.length === 0 && (
+                <p className="col-span-full text-zinc-500 text-center py-10">No products available.</p>
+              )}
+            </div>
+          )}
           
         </div>
       </section>

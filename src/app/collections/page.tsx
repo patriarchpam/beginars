@@ -65,7 +65,7 @@ export default function CollectionsPage() {
                 className="w-full md:w-1/2"
                 initial={{ opacity: 0, x: collection.align === 'right' ? 50 : -50 }}
                 whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, margin: "-100px" }}
+                viewport={{ once: true, amount: 0.1 }}
                 transition={{ duration: 0.6, ease: "easeOut" }}
               >
                 <Link href={collection.href} className="block relative aspect-[4/5] md:aspect-square overflow-hidden rounded-2xl group">
@@ -73,6 +73,7 @@ export default function CollectionsPage() {
                     src={collection.image}
                     alt={collection.title}
                     fill
+                    unoptimized
                     className="object-cover transition-transform duration-700 group-hover:scale-105"
                     sizes="(max-width: 768px) 100vw, 50vw"
                   />
@@ -84,7 +85,7 @@ export default function CollectionsPage() {
                 className="w-full md:w-1/2 flex flex-col justify-center max-w-lg mx-auto"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-100px" }}
+                viewport={{ once: true, amount: 0.1 }}
                 transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
               >
                 <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-6">{collection.title}</h2>

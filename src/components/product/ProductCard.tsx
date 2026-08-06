@@ -11,15 +11,19 @@ import { Badge } from "@/components/ui/badge";
 export interface Product {
   id: string;
   name: string;
+  description?: string;
   price: number;
-  originalPrice?: number;
+  original_price?: number;
   rating: number;
   reviews: number;
   image: string;
-  hoverImage?: string;
-  isNew?: boolean;
-  isOutOfStock?: boolean;
+  hover_image?: string;
+  is_new?: boolean;
+  is_out_of_stock?: boolean;
   category: string;
+  sizes?: string[];
+  colors?: string[];
+  created_at?: string;
 }
 
 interface ProductCardProps {
@@ -29,8 +33,8 @@ interface ProductCardProps {
 export function ProductCard({ product }: ProductCardProps) {
   const [isHovered, setIsHovered] = useState(false);
 
-  const discount = product.originalPrice 
-    ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100) 
+  const discount = product.original_price 
+    ? Math.round(((product.original_price - product.price) / product.original_price) * 100) 
     : 0;
 
   return (
@@ -47,13 +51,13 @@ export function ProductCard({ product }: ProductCardProps) {
       <div className="relative aspect-[3/4] overflow-hidden rounded-xl bg-muted">
         {/* Badges */}
         <div className="absolute top-3 left-3 z-10 flex flex-col gap-2">
-          {product.isOutOfStock && (
+          {product.is_out_of_stock && (
             <Badge variant="destructive" className="font-semibold shadow-sm">Out of Stock</Badge>
           )}
-          {product.isNew && !product.isOutOfStock && (
+          {product.is_new && !product.is_out_of_stock && (
             <Badge className="bg-primary text-primary-foreground font-semibold shadow-sm">New</Badge>
           )}
-          {discount > 0 && !product.isOutOfStock && (
+          {discount > 0 && !product.is_out_of_stock && (
             <Badge variant="secondary" className="font-semibold text-destructive shadow-sm">-{discount}%</Badge>
           )}
         </div>
@@ -74,12 +78,12 @@ export function ProductCard({ product }: ProductCardProps) {
             src={product.image}
             alt={product.name}
             fill
-            className={`object-cover transition-opacity duration-500 ${isHovered && product.hoverImage ? "opacity-0" : "opacity-100"}`}
+            className={`object-cover transition-opacity duration-500 ${isHovered && product.hover_image ? "opacity-0" : "opacity-100"}`}
             sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
           />
-          {product.hoverImage && (
+          {product.hover_image && (
             <Image
-              src={product.hoverImage}
+              src={product.hover_image}
               alt={`${product.name} alternate view`}
               fill
               className={`object-cover transition-opacity duration-500 absolute inset-0 ${isHovered ? "opacity-100" : "opacity-0"}`}
@@ -103,8 +107,8 @@ export function ProductCard({ product }: ProductCardProps) {
           <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">{product.category}</span>
           <div className="flex items-center gap-1">
             <Star className="h-3.5 w-3.5 fill-accent text-accent" />
-            <span className="text-xs font-medium">{product.rating.toFixed(1)}</span>
-            <span className="text-xs text-muted-foreground">({product.reviews})</span>
+            <span className="text-xs font-medium">{product.rating ? Number(product.rating).toFixed(1) : "0.0"}</span>
+            <span className="text-xs text-muted-foreground">({product.reviews || 0})</span>
           </div>
         </div>
         
@@ -114,19 +118,19 @@ export function ProductCard({ product }: ProductCardProps) {
 
         <div className="flex items-center gap-2 mt-1 mb-3">
           <span className="font-bold text-lg">NGN {product.price.toLocaleString()}</span>
-          {product.originalPrice && (
-            <span className="text-sm text-muted-foreground line-through">NGN {product.originalPrice.toLocaleString()}</span>
+          {product.original_price && (
+            <span className="text-sm text-muted-foreground line-through">NGN {product.original_price.toLocaleString()}</span>
           )}
         </div>
         
         <Button 
           size="sm" 
           className="w-full rounded-md text-xs font-bold uppercase tracking-widest bg-primary text-primary-foreground hover:bg-primary/90"
-          disabled={product.isOutOfStock}
+          disabled={product.is_out_of_stock}
           asChild
         >
           <Link href={`/product/${product.id}`}>
-            {product.isOutOfStock ? "SOLD OUT" : "SELECT OPTIONS"}
+            {product.is_out_of_stock ? "SOLD OUT" : "SELECT OPTIONS"}
           </Link>
         </Button>
       </div>
