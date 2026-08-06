@@ -8,7 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -19,6 +19,8 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const nextUrl = searchParams.get('next') || '/profile';
   const [isLoading, setIsLoading] = React.useState(false);
   const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
   const [isUnconfirmed, setIsUnconfirmed] = React.useState(false);
@@ -57,7 +59,9 @@ export default function LoginPage() {
         return;
       }
 
-      router.push("/profile");
+      // Refresh server-side session cookie, then navigate
+      router.refresh();
+      router.push(nextUrl);
     } catch (err: any) {
       setErrorMsg(err.message || "An error occurred");
     } finally {
